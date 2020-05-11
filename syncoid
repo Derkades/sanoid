@@ -24,7 +24,7 @@ my %args = ('sshkey' => '', 'sshport' => '', 'sshcipher' => '', 'sshoption' => [
 GetOptions(\%args, "no-command-checks", "monitor-version", "compress=s", "dumpsnaps", "recursive|r", "sendoptions=s", "recvoptions=s",
                    "source-bwlimit=s", "target-bwlimit=s", "sshkey=s", "sshport=i", "sshcipher|c=s", "sshoption|o=s@",
                    "debug", "quiet", "no-stream", "no-sync-snap", "no-resume", "exclude=s@", "skip-parent", "identifier=s",
-                   "no-clone-handling", "no-privilege-elevation", "force-delete", "create-bookmark", "push-snap-removal",
+                   "no-clone-handling", "no-privilege-elevation", "force-delete", "create-bookmark", "delete-target-snapshots",
                    "pv-options=s" => \$pvoptions, "keep-sync-snap", "preserve-recordsize", "mbuffer-size=s" => \$mbuffer_size) 
                    or pod2usage(2);
 
@@ -848,7 +848,7 @@ sub syncdataset {
 		}
 	}
 
-	if (defined $args{'push-snap-removal'}) {
+	if (defined $args{'delete-target-snapshots'}) {
 		foreach my $snap ( sort { $snaps{'target'}{$a}{'creation'}<=>$snaps{'target'}{$b}{'creation'} } keys %{ $snaps{'target'} }) {
 			if (!exists $snaps{'source'}{$snap}) {
 				if ($targethost ne '') {
@@ -1970,7 +1970,7 @@ Options:
   --keep-sync-snap      Don't destroy created sync snapshots
   --create-bookmark     Creates a zfs bookmark for the newest snapshot on the source after replication succeeds (only works with --no-sync-snap)
   --preserve-recordsize Preserves the recordsize on initial sends to the target
-  --push-snap-removal   Remove snapshots on the target that do not exist on the source any more
+  --delete-target-snapshots With this argument snapshots which are missing on the source will be destroyed on the target. Use this if you only want to handle snapshots on the source.
   --exclude=REGEX       Exclude specific datasets which match the given regular expression. Can be specified multiple times
   --sendoptions=OPTIONS Use advanced options for zfs send (the arguments are filtered as needed), e.g. syncoid --sendoptions="Lc e" sets zfs send -L -c -e ...
   --recvoptions=OPTIONS Use advanced options for zfs receive (the arguments are filtered as needed), e.g. syncoid --recvoptions="ux recordsize o compression=lz4" sets zfs receive -u -x recordsize -o compression=lz4 ...
